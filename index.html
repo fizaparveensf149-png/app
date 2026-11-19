@@ -3,118 +3,81 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IPL 2026 Ticket Booking</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>IPL Match Hub — Responsive Layout</title>
+  <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <header class="navbar">
-    <div class="logo">IPL <span>2026</span> Tickets</div>
-    <p class="tagline">Official Match Pass Booking</p>
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main Navigation">
+      <a href="#" class="logo">IPL Match Hub</a>
+
+      <button
+        type="button"
+        class="hamburger"
+        id="hamburgerBtn"
+        aria-label="Toggle navigation menu"
+        aria-expanded="false"
+        aria-controls="navLinks"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#schedule">Schedule</a></li>
+        <li><a href="#guidelines">Guidelines</a></li>
+        <li><a href="#teams">Teams</a></li>
+      </ul>
+    </nav>
   </header>
 
   <main class="container">
-    <section class="card form-card">
-      <h2>Select Match & Seats</h2>
-      <p class="subtitle">Choose your fixture, stand category, and ticket count to see live pricing.</p>
+    <section id="schedule" class="schedule-section">
+      <div class="section-header">
+        <div>
+          <h1>IPL Match Schedule</h1>
+          <p class="subtitle">Filter fixtures by team or switch between grid and list view.</p>
+        </div>
 
-      <form id="bookingForm">
-        <div class="form-group">
-          <label for="matchSelect">Match Fixture</label>
-          <select id="matchSelect" name="match" required>
-            <option value="" data-price="0">-- Select a Match --</option>
-            <option value="RCB vs CSK • M. Chinnaswamy Stadium, Bengaluru" data-price="1500">
-              RCB vs CSK — Bengaluru (Base ₹1,500)
-            </option>
-            <option value="MI vs KKR • Wankhede Stadium, Mumbai" data-price="1400">
-              MI vs KKR — Mumbai (Base ₹1,400)
-            </option>
-            <option value="SRH vs RR • Rajiv Gandhi Stadium, Hyderabad" data-price="1100">
-              SRH vs RR — Hyderabad (Base ₹1,100)
-            </option>
-            <option value="GT vs DC • Narendra Modi Stadium, Ahmedabad" data-price="1200">
-              GT vs DC — Ahmedabad (Base ₹1,200)
-            </option>
+        <div class="controls">
+          <label for="teamFilter" class="sr-only">Filter by team</label>
+          <select id="teamFilter" class="control-input">
+            <option value="ALL">All Teams</option>
+            <option value="CSK">Chennai Super Kings (CSK)</option>
+            <option value="MI">Mumbai Indians (MI)</option>
+            <option value="RCB">Royal Challengers Bengaluru (RCB)</option>
+            <option value="KKR">Kolkata Knight Riders (KKR)</option>
           </select>
-        </div>
 
-        <div class="form-group">
-          <label for="standSelect">Stand Category</label>
-          <select id="standSelect" name="stand" required>
-            <option value="" data-multiplier="1">-- Select Stand Category --</option>
-            <option value="General Stand (Upper Tier)" data-multiplier="1">
-              General Stand — 1.0x Base Price
-            </option>
-            <option value="Pavilion Terrace (Lower Tier)" data-multiplier="1.5">
-              Pavilion Terrace — 1.5x Base Price
-            </option>
-            <option value="Corporate Box (AC Lounge)" data-multiplier="2.2">
-              Corporate Box — 2.2x Base Price
-            </option>
-            <option value="VIP Hospitality (Pitch View)" data-multiplier="3">
-              VIP Hospitality — 3.0x Base Price
-            </option>
-          </select>
+          <button type="button" id="viewToggleBtn" class="btn-toggle" data-view="grid">
+            Switch to List View
+          </button>
         </div>
+      </div>
 
-        <div class="form-group">
-          <label for="ticketQty">Ticket Quantity (Max 10)</label>
-          <input
-            type="number"
-            id="ticketQty"
-            name="quantity"
-            min="1"
-            max="10"
-            value="1"
-            required
-          />
-        </div>
-
-        <div class="button-row">
-          <button type="submit" id="confirmBtn" class="btn-primary">Confirm Booking</button>
-          <button type="button" id="resetBtn" class="btn-secondary">Reset</button>
-        </div>
-      </form>
+      <div id="matchContainer" class="match-grid" aria-live="polite"></div>
     </section>
 
-    <aside id="bookingSummaryCard" class="card summary-card">
-      <div class="summary-header">
-        <h2>Booking Summary</h2>
-        <span class="live-badge">LIVE</span>
+    <section id="guidelines" class="guidelines-section">
+      <h2>Matchday & Fan Guidelines</h2>
+      <div class="guidelines-grid">
+        <article class="guideline-card">
+          <h3>Gate Entry & Timings</h3>
+          <p>Stadium gates open 2.5 hours before first ball. Carry a valid photo ID and digital or printed match ticket.</p>
+        </article>
+        <article class="guideline-card">
+          <h3>Banned Items</h3>
+          <p>Outside food, beverages, lighters, drones, sharp objects, and large bags are not permitted inside the stands.</p>
+        </article>
+        <article class="guideline-card">
+          <h3>Fair Play & Code</h3>
+          <p>Respect players, officials, and fellow spectators. Follow steward instructions during powerplays and innings breaks.</p>
+        </article>
       </div>
-
-      <div class="summary-details">
-        <div class="detail-item">
-          <span class="label">Match</span>
-          <span class="value" id="summaryMatch">Not selected</span>
-        </div>
-
-        <div class="detail-item">
-          <span class="label">Stand Category</span>
-          <span class="value" id="summaryStand">Not selected</span>
-        </div>
-
-        <div class="detail-item">
-          <span class="label">Price per Ticket</span>
-          <span class="value" id="summaryUnitPrice">₹0</span>
-        </div>
-
-        <div class="detail-item">
-          <span class="label">Ticket Quantity</span>
-          <span class="value" id="summaryQty">1</span>
-        </div>
-      </div>
-
-      <hr class="divider" />
-
-      <div class="total-section">
-        <span>Total Payable</span>
-        <strong id="summaryTotal">₹0</strong>
-      </div>
-    </aside>
+    </section>
   </main>
 
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-  <script src="app.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>

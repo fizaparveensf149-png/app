@@ -1,89 +1,109 @@
-const bookingForm = document.getElementById("bookingForm");
-const matchSelect = document.getElementById("matchSelect");
-const standSelect = document.querySelector("#standSelect");
-const ticketQtyInput = document.querySelector("#ticketQty");
-const resetBtn = document.getElementById("resetBtn");
+const matches = [
+  {
+    id: 1,
+    matchNo: "Match 01",
+    date: "22 Mar 2026",
+    time: "7:30 PM IST",
+    teams: ["CSK", "RCB"],
+    title: "CSK vs RCB",
+    venue: "M. A. Chidambaram Stadium, Chennai"
+  },
+  {
+    id: 2,
+    matchNo: "Match 02",
+    date: "23 Mar 2026",
+    time: "7:30 PM IST",
+    teams: ["MI", "KKR"],
+    title: "MI vs KKR",
+    venue: "Wankhede Stadium, Mumbai"
+  },
+  {
+    id: 3,
+    matchNo: "Match 03",
+    date: "25 Mar 2026",
+    time: "7:30 PM IST",
+    teams: ["RCB", "MI"],
+    title: "RCB vs MI",
+    venue: "M. Chinnaswamy Stadium, Bengaluru"
+  },
+  {
+    id: 4,
+    matchNo: "Match 04",
+    date: "27 Mar 2026",
+    time: "7:30 PM IST",
+    teams: ["KKR", "CSK"],
+    title: "KKR vs CSK",
+    venue: "Eden Gardens, Kolkata"
+  },
+  {
+    id: 5,
+    matchNo: "Match 05",
+    date: "29 Mar 2026",
+    time: "3:30 PM IST",
+    teams: ["CSK", "MI"],
+    title: "CSK vs MI",
+    venue: "M. A. Chidambaram Stadium, Chennai"
+  },
+  {
+    id: 6,
+    matchNo: "Match 06",
+    date: "31 Mar 2026",
+    time: "7:30 PM IST",
+    teams: ["RCB", "KKR"],
+    title: "RCB vs KKR",
+    venue: "M. Chinnaswamy Stadium, Bengaluru"
+  }
+];
 
-const summaryMatch = document.getElementById("summaryMatch");
-const summaryStand = document.querySelector("#summaryStand");
-const summaryUnitPrice = document.querySelector("#summaryUnitPrice");
-const summaryQty = document.getElementById("summaryQty");
-const summaryTotal = document.querySelector("#summaryTotal");
-const toastEl = document.getElementById("toast");
+const matchContainer = document.getElementById("matchContainer");
+const teamFilter = document.getElementById("teamFilter");
+const viewToggleBtn = document.getElementById("viewToggleBtn");
+const hamburgerBtn = document.getElementById("hamburgerBtn");
+const navLinks = document.getElementById("navLinks");
 
-let toastTimer = null;
+function renderMatches(selectedTeam) {
+  const filtered =
+    selectedTeam === "ALL"
+      ? matches
+      : matches.filter((match) => match.teams.includes(selectedTeam));
 
-function showToast(message) {
-  if (!toastEl) return;
-
-  toastEl.textContent = message;
-  toastEl.classList.add("show");
-
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    toastEl.classList.remove("show");
-  }, 2600);
+  matchContainer.innerHTML = filtered
+    .map(
+      (match) => `
+      <article class="match-card">
+        <div>
+          <p class="match-meta">${match.matchNo} • ${match.date} • ${match.time}</p>
+          <h2 class="match-teams">${match.title}</h2>
+        </div>
+        <p class="match-venue">${match.venue}</p>
+      </article>
+    `
+    )
+    .join("");
 }
 
-function formatINR(amount) {
-  return `₹${amount.toLocaleString("en-IN")}`;
-}
-
-function updateBookingSummary(shouldShowToast = true) {
-  const selectedMatchOption = matchSelect.options[matchSelect.selectedIndex];
-  const selectedStandOption = standSelect.options[standSelect.selectedIndex];
-
-  const matchValue = matchSelect.value;
-  const standValue = standSelect.value;
-
-  const basePrice = Number(selectedMatchOption?.dataset.price || 0);
-  const multiplier = Number(selectedStandOption?.dataset.multiplier || 1);
-
-  let quantity = parseInt(ticketQtyInput.value, 10);
-  if (Number.isNaN(quantity) || quantity < 1) {
-    quantity = 1;
-    ticketQtyInput.value = "1";
-  } else if (quantity > 10) {
-    quantity = 10;
-    ticketQtyInput.value = "10";
-  }
-
-  const unitPrice = matchValue ? Math.round(basePrice * multiplier) : 0;
-  const totalPrice = unitPrice * quantity;
-
-  summaryMatch.textContent = matchValue || "Not selected";
-  summaryStand.textContent = standValue || "Not selected";
-  summaryUnitPrice.textContent = formatINR(unitPrice);
-  summaryQty.textContent = String(quantity);
-  summaryTotal.textContent = formatINR(totalPrice);
-
-  if (shouldShowToast) {
-    showToast("Booking Summary updated!");
-  }
-}
-
-matchSelect.addEventListener("change", () => updateBookingSummary(true));
-standSelect.addEventListener("change", () => updateBookingSummary(true));
-ticketQtyInput.addEventListener("change", () => updateBookingSummary(true));
-ticketQtyInput.addEventListener("input", () => updateBookingSummary(false));
-
-bookingForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  updateBookingSummary(false);
-
-  if (!matchSelect.value || !standSelect.value) {
-    showToast("Please select both a match and a stand category.");
-    return;
-  }
-
-  showToast(`Confirmed ${summaryQty.textContent} ticket(s) • Total ${summaryTotal.textContent}`);
+teamFilter.addEventListener("change", (event) => {
+  renderMatches(event.target.value);
 });
 
-resetBtn.addEventListener("click", () => {
-  bookingForm.reset();
-  ticketQtyInput.value = "1";
-  updateBookingSummary(false);
-  showToast("Booking form cleared.");
+viewToggleBtn.addEventListener("click", () => {
+  const isList = matchContainer.classList.toggle("list-view");
+  viewToggleBtn.dataset.view = isList ? "list" : "grid";
+  viewToggleBtn.textContent = isList
+    ? "Switch to Grid View"
+    : "Switch to List View";
 });
 
-updateBookingSummary(false);
+hamburgerBtn.addEventListener("click", () => {
+  const isOpen = navLinks.classList.toggle("open");
+  hamburgerBtn.setAttribute("aria-expanded", String(isOpen));
+});
+
+navLinks.querySelectorAll("a").forEach((link) => {
+  link.addEventListener("click", () => {
+    navLinks.classList.remove("open");
+    hamburgerBtn.setAttribute("aria-expanded", "false");
+  });
+});
+
+renderMatches("ALL");
