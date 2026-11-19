@@ -154,6 +154,7 @@ section:not(#home):not(#matches):not(#book):not(#booking):not(#guidelines) li:ho
     background: #131a30;
     border-radius: 20px;
     overflow-x: auto;
+    scroll-margin-top: 110px;
 }
 
 table {
@@ -199,6 +200,7 @@ tbody tr:hover {
 #book {
     background: #131a30;
     border-radius: 20px;
+    scroll-margin-top: 110px;
 }
 
 form {
@@ -251,6 +253,7 @@ input[type="radio"] {
 #booking {
     background: linear-gradient(135deg, #171d35, #222044);
     border-radius: 20px;
+    scroll-margin-top: 110px;
 }
 
 #booking p {
@@ -262,6 +265,7 @@ input[type="radio"] {
 #guidelines {
     background: #131a30;
     border-radius: 20px;
+    scroll-margin-top: 110px;
 }
 
 #guidelines ol {
@@ -271,6 +275,28 @@ input[type="radio"] {
 #guidelines li {
     color: #d6d9e8;
     padding: 10px 0;
+}
+
+/* Toast Notification */
+#toast {
+    visibility: hidden;
+    opacity: 0;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: linear-gradient(135deg, #ff7a18, #ffb347);
+    color: #111;
+    padding: 15px 25px;
+    border-radius: 10px;
+    font-weight: 600;
+    z-index: 1000;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+}
+
+#toast.show {
+    visibility: visible;
+    opacity: 1;
 }
 
 /* Footer */
@@ -327,5 +353,12 @@ footer p {
     button {
         width: 100%;
         margin: 8px 0;
+    }
+
+    #toast {
+        left: 15px;
+        right: 15px;
+        bottom: 20px;
+        text-align: center;
     }
 }

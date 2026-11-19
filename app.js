@@ -1,81 +1,94 @@
-// app.js - IPL 2026 Ticket Booking Interactions
+let toastTimeoutId = null;
 
-// Reusable showToast function for notifications
+// Reusable Toast Notification Function
 function showToast(message) {
-    let toastContainer = document.getElementById('toast-container');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.id = 'toast-container';
-        toastContainer.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        `;
-        document.body.appendChild(toastContainer);
+    let toast = document.getElementById("toast");
+
+    if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "toast";
+        toast.setAttribute("role", "status");
+        toast.setAttribute("aria-live", "polite");
+        document.body.appendChild(toast);
     }
 
-    const toast = document.createElement('div');
-    toast.innerText = message;
-    toast.style.cssText = `
-        background: linear-gradient(135deg, #ff7a18, #ffb347);
-        color: #111;
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 14px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        opacity: 0;
-        transition: opacity 0.3s ease, transform 0.3s ease;
-        transform: translateY(20px);
-    `;
+    toast.textContent = message;
+    toast.classList.add("show");
 
-    toastContainer.appendChild(toast);
+    if (toastTimeoutId) {
+        clearTimeout(toastTimeoutId);
+    }
 
-    // Fade in
-    setTimeout(() => {
-        toast.style.opacity = '1';
-        toast.style.transform = 'translateY(0)';
-    }, 50);
-
-    // Fade out and remove after 3 seconds
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateY(20px)';
-        setTimeout(() => toast.remove(), 300);
+    toastTimeoutId = setTimeout(function () {
+        toast.classList.remove("show");
     }, 3000);
 }
 
-// Smooth scrolling and event handling on load
-document.addEventListener('DOMContentLoaded', () => {
-    // Handle smooth scrolling for navigation and button links
-    const internalLinks = document.querySelectorAll('nav a, #home button a');
+// Smooth Scrolling to the Booking Form (#book)
+function scrollToBooking(selectedMatchValue) {
+    const bookingFormSection = document.getElementById("book");
+    const matchSelect = document.getElementById("match");
 
-    internalLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            const href = link.getAttribute('href');
-            if (href && href.startsWith('#')) {
-                e.preventDefault();
-                const target = document.querySelector(href);
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth' });
-                    showToast('Scrolling to section...');
-                }
+    if (selectedMatchValue && matchSelect) {
+        matchSelect.value = selectedMatchValue;
+    }
+
+    if (bookingFormSection) {
+        bookingFormSection.scrollIntoView({
+            behavior: "smooth"
+        });
+    }
+
+    showToast("Scrolled to the booking form. Ready to book IPL 2026 tickets!");
+}
+
+// Event Handling
+document.addEventListener("DOMContentLoaded", function () {
+    const bookButtons = document.querySelectorAll(".book-btn");
+    const bookingForm = document.getElementById("bookingForm");
+    const checkBookingBtn = document.getElementById("checkBookingBtn");
+    const bookingIdInput = document.getElementById("bookingid");
+
+    bookButtons.forEach(function (button) {
+        button.addEventListener("click", function (event) {
+            const matchCode = button.getAttribute("data-match");
+            const bookingFormSection = document.getElementById("book");
+
+            // Allow form submission buttons to validate/submit normally if inside a form
+            if (button.type === "submit") {
+                return;
+            }
+
+            if (bookingFormSection) {
+                event.preventDefault();
+                scrollToBooking(matchCode);
+            } else {
+                showToast("Let's book your IPL 2026 tickets!");
             }
         });
     });
 
-    // Toast confirmation on form submission
-    const bookingForm = document.querySelector('form');
     if (bookingForm) {
-        bookingForm.addEventListener('submit', (e) => {
-            if (bookingForm.checkValidity()) {
-                e.preventDefault();
-                showToast('🎉 Booking confirmed successfully!');
+        bookingForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const nameValue = document.getElementById("name")?.value.trim() || "Fan";
+            showToast(`Booking request received for ${nameValue}!`);
+            bookingForm.reset();
+        });
+
+        bookingForm.addEventListener("reset", function () {
+            showToast("Booking form cleared.");
+        });
+    }
+
+    if (checkBookingBtn && bookingIdInput) {
+        checkBookingBtn.addEventListener("click", function () {
+            const bookingId = bookingIdInput.value.trim();
+            if (!bookingId) {
+                showToast("Please enter a Booking ID first.");
+                return;
             }
+            showToast(`Checking status for Booking ID: ${bookingId}`);
         });
     }
 });
