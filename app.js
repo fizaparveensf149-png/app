@@ -1,94 +1,89 @@
-let toastTimeoutId = null;
+const bookingForm = document.getElementById("bookingForm");
+const matchSelect = document.getElementById("matchSelect");
+const standSelect = document.querySelector("#standSelect");
+const ticketQtyInput = document.querySelector("#ticketQty");
+const resetBtn = document.getElementById("resetBtn");
 
-// Reusable Toast Notification Function
+const summaryMatch = document.getElementById("summaryMatch");
+const summaryStand = document.querySelector("#summaryStand");
+const summaryUnitPrice = document.querySelector("#summaryUnitPrice");
+const summaryQty = document.getElementById("summaryQty");
+const summaryTotal = document.querySelector("#summaryTotal");
+const toastEl = document.getElementById("toast");
+
+let toastTimer = null;
+
 function showToast(message) {
-    let toast = document.getElementById("toast");
+  if (!toastEl) return;
 
-    if (!toast) {
-        toast = document.createElement("div");
-        toast.id = "toast";
-        toast.setAttribute("role", "status");
-        toast.setAttribute("aria-live", "polite");
-        document.body.appendChild(toast);
-    }
+  toastEl.textContent = message;
+  toastEl.classList.add("show");
 
-    toast.textContent = message;
-    toast.classList.add("show");
-
-    if (toastTimeoutId) {
-        clearTimeout(toastTimeoutId);
-    }
-
-    toastTimeoutId = setTimeout(function () {
-        toast.classList.remove("show");
-    }, 3000);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toastEl.classList.remove("show");
+  }, 2600);
 }
 
-// Smooth Scrolling to the Booking Form (#book)
-function scrollToBooking(selectedMatchValue) {
-    const bookingFormSection = document.getElementById("book");
-    const matchSelect = document.getElementById("match");
-
-    if (selectedMatchValue && matchSelect) {
-        matchSelect.value = selectedMatchValue;
-    }
-
-    if (bookingFormSection) {
-        bookingFormSection.scrollIntoView({
-            behavior: "smooth"
-        });
-    }
-
-    showToast("Scrolled to the booking form. Ready to book IPL 2026 tickets!");
+function formatINR(amount) {
+  return `₹${amount.toLocaleString("en-IN")}`;
 }
 
-// Event Handling
-document.addEventListener("DOMContentLoaded", function () {
-    const bookButtons = document.querySelectorAll(".book-btn");
-    const bookingForm = document.getElementById("bookingForm");
-    const checkBookingBtn = document.getElementById("checkBookingBtn");
-    const bookingIdInput = document.getElementById("bookingid");
+function updateBookingSummary(shouldShowToast = true) {
+  const selectedMatchOption = matchSelect.options[matchSelect.selectedIndex];
+  const selectedStandOption = standSelect.options[standSelect.selectedIndex];
 
-    bookButtons.forEach(function (button) {
-        button.addEventListener("click", function (event) {
-            const matchCode = button.getAttribute("data-match");
-            const bookingFormSection = document.getElementById("book");
+  const matchValue = matchSelect.value;
+  const standValue = standSelect.value;
 
-            // Allow form submission buttons to validate/submit normally if inside a form
-            if (button.type === "submit") {
-                return;
-            }
+  const basePrice = Number(selectedMatchOption?.dataset.price || 0);
+  const multiplier = Number(selectedStandOption?.dataset.multiplier || 1);
 
-            if (bookingFormSection) {
-                event.preventDefault();
-                scrollToBooking(matchCode);
-            } else {
-                showToast("Let's book your IPL 2026 tickets!");
-            }
-        });
-    });
+  let quantity = parseInt(ticketQtyInput.value, 10);
+  if (Number.isNaN(quantity) || quantity < 1) {
+    quantity = 1;
+    ticketQtyInput.value = "1";
+  } else if (quantity > 10) {
+    quantity = 10;
+    ticketQtyInput.value = "10";
+  }
 
-    if (bookingForm) {
-        bookingForm.addEventListener("submit", function (event) {
-            event.preventDefault();
-            const nameValue = document.getElementById("name")?.value.trim() || "Fan";
-            showToast(`Booking request received for ${nameValue}!`);
-            bookingForm.reset();
-        });
+  const unitPrice = matchValue ? Math.round(basePrice * multiplier) : 0;
+  const totalPrice = unitPrice * quantity;
 
-        bookingForm.addEventListener("reset", function () {
-            showToast("Booking form cleared.");
-        });
-    }
+  summaryMatch.textContent = matchValue || "Not selected";
+  summaryStand.textContent = standValue || "Not selected";
+  summaryUnitPrice.textContent = formatINR(unitPrice);
+  summaryQty.textContent = String(quantity);
+  summaryTotal.textContent = formatINR(totalPrice);
 
-    if (checkBookingBtn && bookingIdInput) {
-        checkBookingBtn.addEventListener("click", function () {
-            const bookingId = bookingIdInput.value.trim();
-            if (!bookingId) {
-                showToast("Please enter a Booking ID first.");
-                return;
-            }
-            showToast(`Checking status for Booking ID: ${bookingId}`);
-        });
-    }
+  if (shouldShowToast) {
+    showToast("Booking Summary updated!");
+  }
+}
+
+matchSelect.addEventListener("change", () => updateBookingSummary(true));
+standSelect.addEventListener("change", () => updateBookingSummary(true));
+ticketQtyInput.addEventListener("change", () => updateBookingSummary(true));
+ticketQtyInput.addEventListener("input", () => updateBookingSummary(false));
+
+bookingForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  updateBookingSummary(false);
+
+  if (!matchSelect.value || !standSelect.value) {
+    showToast("Please select both a match and a stand category.");
+    return;
+  }
+
+  showToast(`Confirmed ${summaryQty.textContent} ticket(s) • Total ${summaryTotal.textContent}`);
 });
+
+resetBtn.addEventListener("click", () => {
+  bookingForm.reset();
+  ticketQtyInput.value = "1";
+  updateBookingSummary(false);
+  showToast("Booking form cleared.");
+});
+
+updateBookingSummary(false);
