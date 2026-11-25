@@ -1,130 +1,168 @@
+import { useState } from "react";
 
-// Booking Form
-const form = document.getElementById("bookingForm");
+const matchesData = [
+  {
+    id: 1,
+    sport: "Cricket",
+    title: "Bengaluru Strikers vs Mysore Royals",
+    venue: "M. Chinnaswamy Stadium, Bengaluru",
+    dateTime: "Sat, 28 Nov 2026 • 7:00 PM",
+    price: 850,
+    seatsLeft: 42,
+  },
+  {
+    id: 2,
+    sport: "Football",
+    title: "Deccan United vs Southside FC",
+    venue: "Sree Kanteerava Stadium, Bengaluru",
+    dateTime: "Sun, 29 Nov 2026 • 5:30 PM",
+    price: 500,
+    seatsLeft: 18,
+  },
+  {
+    id: 3,
+    sport: "Badminton",
+    title: "Premier Smash League: Finals Night",
+    venue: "Koramangala Indoor Arena, Bengaluru",
+    dateTime: "Tue, 01 Dec 2026 • 6:30 PM",
+    price: 650,
+    seatsLeft: 9,
+  },
+];
 
-const nameInput = document.getElementById("name");
-const matchInput = document.getElementById("match");
-const standInput = document.getElementById("stand");
-const quantityInput = document.getElementById("quantity");
-
-// Show Toast Message
-function showToast(message) {
-    let toast = document.getElementById("toast");
-
-    if (!toast) {
-        toast = document.createElement("div");
-        toast.id = "toast";
-        document.body.appendChild(toast);
-    }
-
-    toast.textContent = message;
-    toast.style.cssText =
-        "position:fixed;top:20px;right:20px;background:green;color:white;padding:15px;border-radius:8px;z-index:9999;";
-
-    setTimeout(() => toast.remove(), 2000);
+function Navbar({ bookedCount, onResetBookings }) {
+  return (
+    <nav className="navbar">
+      <div className="brand">BookMyMatch</div>
+      <div className="nav-actions">
+        <span className="badge">Booked Matches: {bookedCount}</span>
+        {bookedCount > 0 && (
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={onResetBookings}
+          >
+            Clear Bookings
+          </button>
+        )}
+      </div>
+    </nav>
+  );
 }
 
-// Update Booking Summary
-function updateSummary() {
-    if (!form) return;
+function Hero({ selectedSport, onSelectSport }) {
+  const sports = ["All", "Cricket", "Football", "Badminton"];
 
-    const name = nameInput.value;
-    const match = matchInput.value;
-    const stand = standInput.value;
-    const quantity = Number(quantityInput.value);
+  return (
+    <header className="hero">
+      <h1>Book Live Match Tickets</h1>
+      <p>
+        Pick a fixture, check live seat availability, and lock in your spot in
+        seconds.
+      </p>
 
-    const selectedOption =
-        standInput.options[standInput.selectedIndex];
-
-    const price = Number(selectedOption.dataset.price || 0);
-
-    document.getElementById("summaryName").textContent = name || "-";
-    document.getElementById("summaryMatch").textContent = match || "-";
-    document.getElementById("summaryStand").textContent = stand || "-";
-    document.getElementById("summaryQuantity").textContent = quantity || 0;
-
-    document.getElementById("totalPrice").textContent =
-        price * quantity;
+      <div className="filter-group">
+        {sports.map((sport) => (
+          <button
+            key={sport}
+            type="button"
+            className={selectedSport === sport ? "chip active" : "chip"}
+            onClick={() => onSelectSport(sport)}
+          >
+            {sport}
+          </button>
+        ))}
+      </div>
+    </header>
+  );
 }
 
-// Booking Form Events
-if (form) {
-    [nameInput, matchInput, standInput, quantityInput].forEach(input => {
-        input.addEventListener("input", updateSummary);
-        input.addEventListener("change", updateSummary);
-    });
+function MatchCard({ match, isBooked, onBook }) {
+  const soldOut = match.seatsLeft === 0 && !isBooked;
 
-    form.addEventListener("submit", function(event) {
-        event.preventDefault();
-        updateSummary();
-        showToast("Booking Confirmed Successfully!");
-    });
+  return (
+    <article className="card">
+      <div className="card-top">
+        <span className="sport-tag">{match.sport}</span>
+        <span className="price">₹{match.price}</span>
+      </div>
+
+      <h2>{match.title}</h2>
+      <p className="meta">{match.venue}</p>
+      <p className="meta">{match.dateTime}</p>
+      <p className="seats">
+        {isBooked
+          ? "Seat confirmed for this match"
+          : soldOut
+          ? "Sold out"
+          : `${match.seatsLeft} seats left`}
+      </p>
+
+      <button
+        type="button"
+        className={isBooked ? "btn-booked" : "btn-primary"}
+        disabled={isBooked || soldOut}
+        onClick={() => onBook(match.id)}
+      >
+        {isBooked ? "Booked ✓" : soldOut ? "Sold Out" : "Book Seat"}
+      </button>
+    </article>
+  );
 }
 
-// Match Card Buttons
-document.querySelectorAll(".btn-card").forEach(button => {
-    button.addEventListener("click", function() {
-        matchInput.value = this.dataset.match;
-        updateSummary();
+export default function App() {
+  const [matches, setMatches] = useState(matchesData);
+  const [bookedIds, setBookedIds] = useState([]);
+  const [selectedSport, setSelectedSport] = useState("All");
 
-        document.getElementById("book").scrollIntoView({
-            behavior: "smooth"
-        });
-    });
-});
+  function handleBookMatch(matchId) {
+    if (bookedIds.includes(matchId)) return;
 
-// Team Filter
-const teamFilter = document.getElementById("teamFilter");
+    setMatches((prevMatches) =>
+      prevMatches.map((item) =>
+        item.id === matchId && item.seatsLeft > 0
+          ? { ...item, seatsLeft: item.seatsLeft - 1 }
+          : item
+      )
+    );
 
-if (teamFilter) {
-    teamFilter.addEventListener("change", function() {
-        const selectedTeam = this.value;
+    setBookedIds((prevIds) => [...prevIds, matchId]);
+  }
 
-        document.querySelectorAll(".match-card").forEach(card => {
-            const team = card.dataset.team;
+  function handleResetBookings() {
+    setMatches(matchesData);
+    setBookedIds([]);
+  }
 
-            card.style.display =
-                selectedTeam === "all" ||
-                team === selectedTeam
-                ? ""
-                : "none";
-        });
-    });
-}
+  const visibleMatches =
+    selectedSport === "All"
+      ? matches
+      : matches.filter((m) => m.sport === selectedSport);
 
-// Grid and List View Toggle
-const viewToggle = document.getElementById("viewToggle");
-const matchContainer = document.getElementById("matchContainer");
+  return (
+    <div className="app">
+      <Navbar
+        bookedCount={bookedIds.length}
+        onResetBookings={handleResetBookings}
+      />
 
-if (viewToggle && matchContainer) {
-    viewToggle.addEventListener("click", function() {
-        matchContainer.classList.toggle("list-view");
+      <main className="container">
+        <Hero
+          selectedSport={selectedSport}
+          onSelectSport={setSelectedSport}
+        />
 
-        this.textContent =
-            matchContainer.classList.contains("list-view")
-            ? "Grid View"
-            : "List View";
-    });
-}
-
-// Mobile Hamburger Menu
-const menuToggle = document.getElementById("menuToggle");
-const navLinks = document.getElementById("navLinks");
-
-if (menuToggle && navLinks) {
-    menuToggle.addEventListener("click", function() {
-        navLinks.classList.toggle("active");
-
-        this.textContent =
-            navLinks.classList.contains("active")
-            ? "✕"
-            : "☰";
-    });
-
-    navLinks.querySelectorAll("a").forEach(link => {
-        link.addEventListener("click", function() {
-            navLinks.classList.remove("active");
-            menuToggle.textContent = "☰";
-        });
-    });
+        <section className="grid">
+          {visibleMatches.map((match) => (
+            <MatchCard
+              key={match.id}
+              match={match}
+              isBooked={bookedIds.includes(match.id)}
+              onBook={handleBookMatch}
+            />
+          ))}
+        </section>
+      </main>
+    </div>
+  );
 }
