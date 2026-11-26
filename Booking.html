@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Tickets | IPL 2026 Ticket Booking</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>IPL 2026 Ticket Booking</h1>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="index.html#matches">Matches</a></li>
+                <li><a href="booking.html">Book Tickets</a></li>
+                <li><a href="index.html#booking">My Booking</a></li>
+                <li><a href="index.html#guidelines">Guidelines</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="book">
+            <h2>Book Your IPL 2026 Tickets</h2>
+
+            <form id="bookingForm" action="#" method="POST">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" placeholder="Enter your full name" minlength="3" maxlength="50" required>
+
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" placeholder="Enter 10-digit mobile number" pattern="[0-9]{10}" maxlength="10" required>
+
+                <label for="match">Select Match:</label>
+                <select id="match" name="match" required>
+                    <option value="" disabled selected>-- Choose a Match --</option>
+                    <option value="csk-mi">Chennai Super Kings vs Mumbai Indians (March 1)</option>
+                    <option value="rcb-dc">RCB vs Delhi Capitals (March 5)</option>
+                    <option value="mi-kkr">Mumbai Indians vs Kolkata Knight Riders (March 10)</option>
+                </select>
+
+                <label for="stand">Stand Category:</label>
+                <select id="stand" name="stand" required>
+                    <option value="" disabled selected>-- Select Stand Category --</option>
+                    <option value="vip">VIP Pavilion ($150)</option>
+                    <option value="grand">Grand Stand ($100)</option>
+                    <option value="general">General Stand ($50)</option>
+                </select>
+
+                <label for="tickets">Number of Tickets:</label>
+                <input type="number" id="tickets" name="tickets" min="1" max="10" value="1" required>
+
+                <label>Additional Preferences:</label>
+                <div style="margin-bottom: 20px;">
+                    <label style="margin-right: 20px; font-weight: normal;">
+                        <input type="checkbox" name="preferences" value="parking"> Parking Pass
+                    </label>
+                    <label style="font-weight: normal;">
+                        <input type="checkbox" name="preferences" value="meal"> Meal Combo
+                    </label>
+                </div>
+
+                <button type="submit" class="book-btn">Book Now</button>
+                <button type="reset" style="background: #4a5568; color: white;">Reset Form</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <h3>IPL 2026</h3>
+        <p>© 2026 IPL Ticket Booking. All rights reserved.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
